@@ -1,17 +1,16 @@
 package com.task.cricketGame.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="matches")
@@ -24,20 +23,38 @@ public class Matches {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer matchId;
+
 	@Column
-	private String teamA;
+	private Date matchDate;
+
 	@Column
-	private String teamB;
+	private String venue;
+
+	@ManyToOne(cascade = CascadeType.ALL , optional = true)
+	@JoinColumn(name="team1Id",referencedColumnName = "teamId")
+	private Teams team1Id;
+
+	@ManyToOne(cascade = CascadeType.ALL , optional = true)
+	@JoinColumn(name="team2Id", referencedColumnName = "teamId")
+	private Teams team2Id;
+
 	@Column
-	private Integer teamAScore;
+	private String matchType;
+
 	@Column
-	private Integer teamBScore;
+	private String result;
+
 	@Column
-	private Integer teamAWickets;
+	private String resultDiscription;
+
 	@Column
-	private Integer teamBWickets;
+	@CreationTimestamp
+	private Date createdOn;
+
 	@Column
-	private String winner;
+	@CreationTimestamp
+	private Date updatedOn;
+
 	
 	
 

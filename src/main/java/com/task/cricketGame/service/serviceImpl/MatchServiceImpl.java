@@ -1,21 +1,23 @@
 package com.task.cricketGame.service.serviceImpl;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Random;
-
+import com.task.cricketGame.Response;
+import com.task.cricketGame.WebModel.MatchesWebModel;
+import com.task.cricketGame.model.Innings;
+import com.task.cricketGame.model.Matches;
+import com.task.cricketGame.model.Teams;
+import com.task.cricketGame.repository.InningsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.task.cricketGame.Response;
-import com.task.cricketGame.model.Matches;
-import com.task.cricketGame.model.Teams;
-import com.task.cricketGame.repository.MatchesRepo;
+import com.task.cricketGame.repository.MatchesRepository;
 import com.task.cricketGame.repository.PlayersRepository;
 import com.task.cricketGame.repository.TeamsRepository;
 import com.task.cricketGame.service.MatchService;
+
+import javax.swing.text.html.Option;
+import java.util.*;
 
 @Service
 public class MatchServiceImpl implements MatchService{
@@ -27,120 +29,125 @@ public class MatchServiceImpl implements MatchService{
 	PlayersRepository playersRepository;
 	
 	@Autowired
-	MatchesRepo matchesRepo;
+	MatchesRepository matchesRepo;
+	@Autowired
+	InningsRepository inningsRepository;
 
 	@Override
-	public ResponseEntity<?> startMatch(String teamA, String teamB, Integer overs) {
+	public ResponseEntity<?> startMatch(MatchesWebModel matchesWebModel) {
 		HashMap<String, Object> response = new HashMap<>();
-		String winningTeam = null;
+		StringBuilder str = new StringBuilder();
 		try {
-			Teams team1 = teamsRepository.findByTeamName(teamA);
-			Teams team2 = teamsRepository.findByTeamName(teamB);
-			
+			Teams team1 = teamsRepository.findByTeamName(matchesWebModel.getTeam1()).get();
+			Teams team2 = teamsRepository.findByTeamName(matchesWebModel.getTeam2()).get();
+
 			Random random = new Random();
-			
-			Teams firstInningsTeam;
-			Teams secondInningsTeam;
-			
+
 			if(random.nextBoolean()) {
-				firstInningsTeam=team1;
-				secondInningsTeam=team2;
+				matchesWebModel.setFirstInningsTeam(team1);
+				matchesWebModel.setSecondInningsTeam(team2);
 			}else {
-				firstInningsTeam=team2;
-				secondInningsTeam=team1;
+				matchesWebModel.setFirstInningsTeam(team2);
+				matchesWebModel.setSecondInningsTeam(team1);
 			}
-			Matches firstInnings = playFirstInnings(firstInningsTeam, overs);
-			Matches secondInnings = playSecondInnings(secondInningsTeam, overs, firstInnings.getMatchId());
-			
-			if(firstInnings.getTeamAScore()>secondInnings.getTeamBScore()) {
-				 response.put(firstInnings.getTeamA(), firstInnings);
-				 winningTeam=firstInningsTeam.getTeamName();
-			}else {
-				response.put(secondInnings.getTeamB(), secondInnings);
-				winningTeam=secondInningsTeam.getTeamName();
+			Matches firstInnings = playFirstInnings(matchesWebModel);
+			matchesWebModel.setMatchId(firstInnings.getMatchId());
+			Matches secondInnings = playSecondInnings(matchesWebModel);
+
+			if(firstInnings.getMatchId().equals(secondInnings.getMatchId())) {
+				Map<String, Object> matchData = matchesRepo.findByMatchId(secondInnings.getMatchId());
+				response.put("matchDetails", matchData);
+				str.append(secondInnings.getResult());
 			}
-			
-			Optional<Matches> matchData = matchesRepo.findById(firstInnings.getMatchId());
-			Matches match = matchData.get();
-			match.setWinner(winningTeam);
-			matchesRepo.save(match);
-			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(new Response(winningTeam+" Won the match",response));
-	}
-	
-	public Matches playFirstInnings(Teams battingTeam, Integer overs) {
-		int totalScore = 0;
-		int totalWickets = 0;
-		
-		int totalBalls = overs*6;
-		for(int i=1;i<=totalBalls;i++) {
-			if(totalWickets==10) {
-				break;
-			}
-			
-			Random random = new Random();
-			int outCome = random.nextInt(8);
-			if(outCome==7) {
-				totalWickets++;
-			}else {
-				totalScore+=outCome;
-			}
-			
-		}
-		
-		Matches match = new Matches();
-		match.setTeamA(battingTeam.getTeamName());
-		match.setTeamAScore(totalScore);
-		match.setTeamAWickets(totalWickets);
-		match = matchesRepo.save(match);
-		
-		return match;
-		
-	}
-	
-	public Matches playSecondInnings(Teams battingTeam, Integer overs,Integer matchId) {
-		int totalScore = 0;
-		int totalWickets = 0;
-		
-		int totalBalls = overs*6;
-		for(int i=1;i<=totalBalls;i++) {
-			if(totalWickets==10) {
-				break;
-			}
-			
-			Random random = new Random();
-			int outCome = random.nextInt(8);
-			if(outCome==7) {
-				totalWickets++;
-			}else {
-				totalScore+=outCome;
-			}
-			
-		}
-		
-		Optional<Matches> matchData = matchesRepo.findById(matchId);
-		
-		Matches match = matchData.get();
-		match.setTeamB(battingTeam.getTeamName());
-		match.setTeamBScore(totalScore);
-		match.setTeamBWickets(totalWickets);
-		match = matchesRepo.save(match);
-		
-		return match;
-		
+		return ResponseEntity.status(HttpStatus.OK).body(new Response(str.toString()+" Won the match",response));
 	}
 
-	@Override
-	public ResponseEntity<?> getAllTeams() {
-		try {
-			
-		}catch(Exception e) {
-			e.printStackTrace();
+	public Matches playFirstInnings(MatchesWebModel matchesWebModel) {
+		int totalScore = 0;
+		int totalWickets = 0;
+		int totalBalls = matchesWebModel.getOvers()*6;
+		for(int i=1;i<=totalBalls;i++) {
+			if(totalWickets==10) {
+				break;
+			}
+			Random random = new Random();
+			int outCome = random.nextInt(8);
+			if(outCome==7) {
+				totalWickets++;
+			}else {
+				totalScore+=outCome;
+			}
 		}
-		return null;
+		Matches match = new Matches();
+		Teams team1 = teamsRepository.findById(matchesWebModel.getTeam1Id()).get();
+		Teams team2 = teamsRepository.findById(matchesWebModel.getTeam2Id()).get();
+		match.setTeam1Id(team1);
+		match.setMatchDate(matchesWebModel.getMatchDate());
+		match.setVenue(matchesWebModel.getVenue());
+		match.setMatchType(matchesWebModel.getMatchType());
+		match = matchesRepo.save(match);
+
+		Innings innings = new Innings();
+		innings.setMatches(match);
+		innings.setBattingTeamId(team1);
+		innings.setBowlingTeamId(team2);
+		innings.setInningsNumber(1);
+		innings.setTotalRuns(totalScore);
+		innings.setTarget(totalScore+1);
+		inningsRepository.save(innings);
+		return match;
+
+	}
+
+	public Matches playSecondInnings(MatchesWebModel matchesWebModel) {
+		int totalScore = 0;
+		int totalWickets = 0;
+
+		int totalBalls = matchesWebModel.getOvers()*6;
+		for(int i=1;i<=totalBalls;i++) {
+			if(totalWickets==10) {
+				break;
+			}
+
+			Random random = new Random();
+			int outCome = random.nextInt(8);
+			if(outCome==7) {
+				totalWickets++;
+			}else {
+				totalScore+=outCome;
+			}
+		}
+		Optional<Matches> matchData = matchesRepo.findById(matchesWebModel.getMatchId());
+		Matches match = matchData.get();
+		Teams team1 = teamsRepository.findById(matchesWebModel.getTeam2Id()).get();
+		Teams team2 = teamsRepository.findById(matchesWebModel.getTeam1Id()).get();
+		match.setTeam2Id(team1);
+
+		Innings innings = new Innings();
+		innings.setMatches(match);
+		innings.setBattingTeamId(team1);
+		innings.setBowlingTeamId(team2);
+		innings.setInningsNumber(2);
+		innings.setTotalRuns(totalScore);
+		innings= inningsRepository.save(innings);
+
+		Optional<Innings> inningsData = inningsRepository.findByMatchId(match.getMatchId());
+		if(inningsData.get().getTarget()>innings.getTotalRuns()){
+			match.setResult(matchData.get().getTeam1Id().getTeamName());
+			match.setResultDiscription(match.getTeam2Id().getTeamName()+" beaten by "+matchData.get().getTeam1Id().getTeamName());
+		} else if (inningsData.get().getTarget()<innings.getTotalRuns()) {
+			match.setResult(match.getTeam2Id().getTeamName());
+			match.setResultDiscription(matchData.get().getTeam1Id().getTeamName()+" beaten by "+match.getTeam2Id().getTeamName());
+		} else if (inningsData.get().getTarget().equals(innings.getTotalRuns())) {
+			match.setResult("DRAW");
+			match.setResultDiscription("Both team scored "+innings.getTotalRuns());
+		}
+		match = matchesRepo.save(match);
+		return match;
+
 	}
 	
 

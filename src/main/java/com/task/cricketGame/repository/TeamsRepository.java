@@ -10,6 +10,6 @@ import com.task.cricketGame.model.Teams;
 @Repository
 public interface TeamsRepository extends JpaRepository<Teams, Integer>{
 
-	Teams findByTeamName(String teamA);
+	Optional<Teams> findByTeamName(String teamName);
 
 }

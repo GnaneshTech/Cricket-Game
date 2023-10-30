@@ -10,6 +10,10 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @Entity
 @Table(name="teams")
@@ -24,5 +28,13 @@ public class Teams {
 	private Integer teamId;
 	@Column
 	private String teamName;
+	@Column
+	private String nationality;
+	@Column
+	@CreationTimestamp
+	private Date createdOn;
+	@Column
+	@CreationTimestamp
+	private Date updatedOn;
 
 }
