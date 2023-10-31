@@ -2,10 +2,7 @@ package com.task.cricketGame.service.serviceImpl;
 
 import com.task.cricketGame.Response;
 import com.task.cricketGame.WebModel.MatchesWebModel;
-import com.task.cricketGame.model.BallByBall;
-import com.task.cricketGame.model.Innings;
-import com.task.cricketGame.model.Matches;
-import com.task.cricketGame.model.Teams;
+import com.task.cricketGame.model.*;
 import com.task.cricketGame.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,7 +59,7 @@ public class MatchServiceImpl implements MatchService{
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(str.toString()+"startMatch Impl Exception",e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(str.toString()+"startMatch Impl Exception",e.getMessage()));
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(new Response(str.toString()+" Won the match",response));
 	}
@@ -74,6 +71,7 @@ public class MatchServiceImpl implements MatchService{
 
 		Matches match = new Matches();
 		Teams team1 = teamsRepository.findById(matchesWebModel.getTeam1Id()).get();
+		System.out.println(team1);
 		Teams team2 = teamsRepository.findById(matchesWebModel.getTeam2Id()).get();
 		match.setTeam1Id(team1);
 		match.setMatchDate(matchesWebModel.getMatchDate());
@@ -81,9 +79,13 @@ public class MatchServiceImpl implements MatchService{
 		match.setMatchType(matchesWebModel.getMatchType());
 		match = matchesRepo.save(match);
 
+		List<Players> battingPlayers = playersRepository.findByTeamId(team1.getTeamId());
+		int battingPlayerCount = 0;
+
+
 		for(int over=1;over<=totalOvers;over++){
 			for(int i=1;i<=6;i++) {
-				if(totalWickets==11) {
+				if(totalWickets==10) {
 					break;
 				}
 				Random random = new Random();
@@ -93,16 +95,19 @@ public class MatchServiceImpl implements MatchService{
 					BallByBall ball = new BallByBall();
 					ball.setMatches(match);
 					ball.setOverNumber(over);
+					ball.setBatsmanId(battingPlayers.get(battingPlayerCount));
 					ball.setInningsNumber(1);
 					ball.setBallNumber(i);
 					ball.setRunScored(7);
 					ballByBallRepository.save(ball);
+					battingPlayerCount++;
 				}else {
 					totalScore+=outCome;
 					BallByBall ball = new BallByBall();
 					ball.setMatches(match);
 					ball.setOverNumber(over);
 					ball.setInningsNumber(1);
+					ball.setBatsmanId(battingPlayers.get(battingPlayerCount));
 					ball.setBallNumber(i);
 					ball.setRunScored(outCome);
 					ballByBallRepository.save(ball);
@@ -134,9 +139,12 @@ public class MatchServiceImpl implements MatchService{
 		Teams team2 = teamsRepository.findById(matchesWebModel.getTeam1Id()).get();
 		match.setTeam2Id(team1);
 
+		List<Players> battingPlayers = playersRepository.findByTeamId(team1.getTeamId());
+		int battingPlayerCount = 0;
+
 		for(int over=1;over<=totalOvers;over++){
 			for(int i=1;i<=6;i++) {
-				if(totalWickets==11) {
+				if(totalWickets==10) {
 					break;
 				}
 				Random random = new Random();
@@ -147,15 +155,18 @@ public class MatchServiceImpl implements MatchService{
 					ball.setMatches(match);
 					ball.setOverNumber(over);
 					ball.setInningsNumber(2);
+					ball.setBatsmanId(battingPlayers.get(battingPlayerCount));
 					ball.setBallNumber(i);
 					ball.setRunScored(7);
 					ballByBallRepository.save(ball);
+					battingPlayerCount++;
 				}else {
 					totalScore+=outCome;
 					BallByBall ball = new BallByBall();
 					ball.setMatches(match);
 					ball.setOverNumber(over);
 					ball.setInningsNumber(2);
+					ball.setBatsmanId(battingPlayers.get(battingPlayerCount));
 					ball.setBallNumber(i);
 					ball.setRunScored(outCome);
 					ballByBallRepository.save(ball);

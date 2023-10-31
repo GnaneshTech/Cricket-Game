@@ -13,6 +13,9 @@ import com.task.cricketGame.model.Players;
 public interface PlayersRepository extends JpaRepository<Players, Integer>{
     Optional<Players> findByPlayerName(String playerName);
 
+    @Query("select players from Players players where players.teams.teamId=:teamId")
+    List<Players> findByTeamId(Integer teamId);
+
 //	@Query("select p from Players p where p.teams.teamId=:teamId")
 //	List<Players> findByTeamsId(Integer teamId);
 

@@ -33,10 +33,10 @@ public class BallByBall {
 
     @Column
     private Integer inningsNumber;
-//
-//    @ManyToOne(cascade = CascadeType.ALL, optional = true)
-//    @JoinColumn(name = "batsmanId", referencedColumnName = "playerId")
-//    private Players batsmanId;
+
+    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "batsmanId", referencedColumnName = "playerId")
+    private Players batsmanId;
 
     @Column
     private Integer runScored;

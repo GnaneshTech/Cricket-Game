@@ -31,9 +31,6 @@ public class PlayerInnings {
     private Integer runsScored;
 
     @Column
-    private Integer wicketsTakeBy;
-
-    @Column
     @CreationTimestamp
     private Date createdOn;
 
