@@ -21,10 +21,6 @@ public class BallByBall {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ballId;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "inningsId")
-    private Innings inningsId;
-
     @Column
     private Integer overNumber;
 
@@ -32,12 +28,15 @@ public class BallByBall {
     private Integer ballNumber;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "bowlerId", referencedColumnName = "playerId")
-    private Players bowlerId;
+    @JoinColumn(name = "matchId", referencedColumnName = "matchId")
+    private Matches matches;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "batsmanId", referencedColumnName = "playerId")
-    private Players batsmanId;
+    @Column
+    private Integer inningsNumber;
+//
+//    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+//    @JoinColumn(name = "batsmanId", referencedColumnName = "playerId")
+//    private Players batsmanId;
 
     @Column
     private Integer runScored;
