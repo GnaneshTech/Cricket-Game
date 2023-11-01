@@ -19,13 +19,16 @@ public class PlayerInnings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer playerInningsId;
 
+//    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+//    @JoinColumn(name = "inningsId")
+//    private Innings inningsId;
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "inningsId")
-    private Innings inningsId;
+    @JoinColumn(name = "matchId", referencedColumnName = "matchId")
+    private Matches matches;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "playerId")
-    private Players playerId;
+    @JoinColumn(name = "playerId", referencedColumnName = "playerId")
+    private Players player;
 
     @Column
     private Integer runsScored;

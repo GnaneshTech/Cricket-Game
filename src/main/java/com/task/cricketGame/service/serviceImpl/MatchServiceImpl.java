@@ -4,6 +4,8 @@ import com.task.cricketGame.Response;
 import com.task.cricketGame.WebModel.MatchesWebModel;
 import com.task.cricketGame.model.*;
 import com.task.cricketGame.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +21,18 @@ public class MatchServiceImpl implements MatchService{
 	
 	@Autowired
 	TeamsRepository teamsRepository;
-	
 	@Autowired
 	PlayersRepository playersRepository;
-	
 	@Autowired
 	MatchesRepository matchesRepo;
 	@Autowired
 	InningsRepository inningsRepository;
-
 	@Autowired
 	BallByBallRepository ballByBallRepository;
+	@Autowired
+	PlayerInningsRepository playerInningsRepository;
+
+	private final static Logger logger = LoggerFactory.getLogger(MatchServiceImpl.class);
 
 	@Override
 	public ResponseEntity<?> startMatch(MatchesWebModel matchesWebModel) {
@@ -71,7 +74,6 @@ public class MatchServiceImpl implements MatchService{
 
 		Matches match = new Matches();
 		Teams team1 = teamsRepository.findById(matchesWebModel.getTeam1Id()).get();
-		System.out.println(team1);
 		Teams team2 = teamsRepository.findById(matchesWebModel.getTeam2Id()).get();
 		match.setTeam1Id(team1);
 		match.setMatchDate(matchesWebModel.getMatchDate());
@@ -100,6 +102,12 @@ public class MatchServiceImpl implements MatchService{
 					ball.setBallNumber(i);
 					ball.setRunScored(7);
 					ballByBallRepository.save(ball);
+					Integer playerScore = ballByBallRepository.findPlayerInningsForMatch(ball.getInningsNumber(),ball.getMatches().getMatchId(),ball.getBatsmanId().getPlayerId());
+					PlayerInnings playerInnings = new PlayerInnings();
+					playerInnings.setMatches(match);
+					playerInnings.setPlayer(ball.getBatsmanId());
+					playerInnings.setRunsScored(playerScore);
+					playerInningsRepository.save(playerInnings);
 					battingPlayerCount++;
 				}else {
 					totalScore+=outCome;
@@ -122,6 +130,8 @@ public class MatchServiceImpl implements MatchService{
 		innings.setTotalRuns(totalScore);
 		innings.setTarget(totalScore+1);
 		innings=inningsRepository.save(innings);
+
+
 
 		return match;
 
@@ -159,6 +169,12 @@ public class MatchServiceImpl implements MatchService{
 					ball.setBallNumber(i);
 					ball.setRunScored(7);
 					ballByBallRepository.save(ball);
+					Integer playerScore = ballByBallRepository.findPlayerInningsForMatch(ball.getInningsNumber(),ball.getMatches().getMatchId(),ball.getBatsmanId().getPlayerId());
+					PlayerInnings playerInnings = new PlayerInnings();
+					playerInnings.setMatches(match);
+					playerInnings.setPlayer(ball.getBatsmanId());
+					playerInnings.setRunsScored(playerScore);
+					playerInningsRepository.save(playerInnings);
 					battingPlayerCount++;
 				}else {
 					totalScore+=outCome;
