@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.task.cricketGame.service.MatchService;
 
+import javax.jws.Oneway;
 import javax.swing.text.html.Option;
 import java.util.*;
 
@@ -62,7 +63,7 @@ public class MatchServiceImpl implements MatchService{
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(str.toString()+"startMatch Impl Exception",e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response("startMatch Impl Exception",e.getMessage()));
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(new Response(str.toString()+" Won the match",response));
 	}
@@ -213,6 +214,56 @@ public class MatchServiceImpl implements MatchService{
 		return match;
 
 	}
-	
+
+
+	@Override
+	public ResponseEntity<?> fetchPlayerDetails(MatchesWebModel matchesWebModel) {
+		HashMap<String,Object> response = new HashMap<>();
+		try{
+			Optional<Map<String,Object>> playerInnings = playerInningsRepository.findByMatchId(matchesWebModel.getMatchId(),matchesWebModel.getPlayerId());
+			if (playerInnings.isPresent()){
+				HashMap<String,Object> playerInningsData = new HashMap<>();
+				playerInningsData.put("runsScored",playerInnings.get().get("runsScored"));
+				playerInningsData.put("playerName",playerInnings.get().get("playerName"));
+				playerInningsData.put("role",playerInnings.get().get("role"));
+				playerInningsData.put("teamName",playerInnings.get().get("teamName"));
+				playerInningsData.put("match",playerInnings.get().get("team1")+" Vs "+playerInnings.get().get("team2"));
+				playerInningsData.put("matchDate",playerInnings.get().get("matchDate"));
+				response.put("playerInningsDetails",playerInningsData);
+			}else{
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response("teamId or playerId not found",""));
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response("fetchPlayerDetails Impl Exception",e.getMessage()));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(new Response("fetchPlayerInnings Success",response));
+	}
+
+	@Override
+	public ResponseEntity<?> fetchMatchDetails(Integer matchId) {
+		HashMap<String,Object> response = new HashMap<>();
+		try{
+			Map<String,Object> team1 = matchesRepo.findMatchDetails(matchId,1);
+			Map<String,Object> team2 = matchesRepo.findMatchDetails(matchId,2);
+			HashMap<String, Object> matchDetails = new HashMap<>();
+			matchDetails.put("match",team1.get("team1Name")+" Vs "+team2.get("team2Name"));
+			matchDetails.put("winner",team2.get("result"));
+			matchDetails.put("resultDiscription",team2.get("resultDiscription"));
+			matchDetails.put("matchType",team2.get("matchType"));
+			matchDetails.put("venue",team2.get("venue"));
+			matchDetails.put(team1.get("team1Name")+"Score",team1.get("score"));
+			matchDetails.put(team2.get("team2Name")+"Score",team2.get("score"));
+			matchDetails.put("team1",team1.get("team1Name"));
+			matchDetails.put("team2",team2.get("team2Name"));
+			matchDetails.put("matchDate",team2.get("matchDate"));
+			response.put("matchDetails",matchDetails);
+		}catch(Exception e){
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response("fetchMatchDetails Impl Exception",e.getMessage()));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(new Response("fetchMatchDetails Success",response));
+	}
+
 
 }

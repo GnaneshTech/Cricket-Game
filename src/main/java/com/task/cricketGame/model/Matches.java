@@ -30,11 +30,11 @@ public class Matches {
 	@Column
 	private String venue;
 
-	@ManyToOne(cascade = CascadeType.ALL , optional = true)
+	@ManyToOne(cascade = CascadeType.ALL , optional = false)
 	@JoinColumn(name="team1Id",referencedColumnName = "teamId")
 	private Teams team1Id;
 
-	@ManyToOne(cascade = CascadeType.ALL , optional = true)
+	@ManyToOne(cascade = CascadeType.ALL , optional = false)
 	@JoinColumn(name="team2Id", referencedColumnName = "teamId")
 	private Teams team2Id;
 

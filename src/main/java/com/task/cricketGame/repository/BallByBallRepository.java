@@ -10,6 +10,6 @@ import java.util.Map;
 @Repository
 public interface BallByBallRepository extends JpaRepository<BallByBall,Integer> {
 
-    @Query("select sum(b.runScored) from BallByBall b where b.inningsNumber=:inningsNumber and b.matches.matchId=:matchId and b.batsmanId.playerId=:playerId")
+    @Query("select sum(b.runScored) from BallByBall b where b.inningsNumber=:inningsNumber and b.matches.matchId=:matchId and b.batsmanId.playerId=:playerId and b.runScored!=7")
     Integer findPlayerInningsForMatch(Integer inningsNumber, Integer matchId, Integer playerId);
 }

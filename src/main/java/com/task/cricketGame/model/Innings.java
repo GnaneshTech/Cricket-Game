@@ -20,7 +20,7 @@ public class Innings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer inningsId;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name="matchId")
     private Matches matches;
 

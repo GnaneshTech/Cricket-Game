@@ -27,14 +27,14 @@ public class BallByBall {
     @Column
     private Integer ballNumber;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "matchId", referencedColumnName = "matchId")
     private Matches matches;
 
     @Column
     private Integer inningsNumber;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "batsmanId", referencedColumnName = "playerId")
     private Players batsmanId;
 

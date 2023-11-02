@@ -9,4 +9,8 @@ public interface MatchService {
 	
 	public ResponseEntity<?> startMatch(MatchesWebModel matchesWebModel);
 
+	public ResponseEntity<?> fetchPlayerDetails(MatchesWebModel matchesWebModel);
+
+	public ResponseEntity<?> fetchMatchDetails(Integer matchId);
+
 }

@@ -27,6 +27,7 @@ public class MatchesWebModel {
     private Integer overs;
     private Teams firstInningsTeam;
     private Teams secondInningsTeam;
+    private Integer playerId;
 
 
 }
