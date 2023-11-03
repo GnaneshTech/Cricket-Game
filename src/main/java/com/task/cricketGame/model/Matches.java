@@ -30,13 +30,16 @@ public class Matches {
 	@Column
 	private String venue;
 
-	@ManyToOne(cascade = CascadeType.ALL , optional = false)
+	@ManyToOne(cascade = CascadeType.ALL , optional = true)
 	@JoinColumn(name="team1Id",referencedColumnName = "teamId")
 	private Teams team1Id;
 
-	@ManyToOne(cascade = CascadeType.ALL , optional = false)
+	@ManyToOne(cascade = CascadeType.ALL , optional = true)
 	@JoinColumn(name="team2Id", referencedColumnName = "teamId")
 	private Teams team2Id;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "matches")
+	private List<PlayerInnings> playerInnings;
 
 	@Column
 	private String matchType;
@@ -46,6 +49,9 @@ public class Matches {
 
 	@Column
 	private String resultDiscription;
+
+	@Column
+	private Boolean matchIsActive;
 
 	@Column
 	@CreationTimestamp

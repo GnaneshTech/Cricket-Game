@@ -9,6 +9,7 @@ import com.task.cricketGame.model.Matches;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface MatchesRepository extends JpaRepository<Matches, Integer>{
@@ -21,4 +22,7 @@ public interface MatchesRepository extends JpaRepository<Matches, Integer>{
     @Query("select b.matches.team1Id.teamName as team1Name,b.matches.team2Id.teamName as team2Name,b.matches.result as result,b.matches.resultDiscription as resultDiscription,b.matches.matchType as matchType," +
             "b.matches.venue as venue,sum(b.runScored) as score,b.matches.matchDate as matchDate from BallByBall b where b.matches.matchId=:matchId and b.inningsNumber=:inningsNumber and b.runScored!=7")
     Map<String,Object> findMatchDetails(Integer matchId, Integer inningsNumber);
+
+    @Query("select m from Matches m where m.matchId=:matchId and m.matchIsActive=true")
+    Optional<Matches> findByMatchIdAndActive(Integer matchId);
 }

@@ -19,7 +19,7 @@ public class TeamsController {
     TeamsService teamsService;
 
 
-    @PostMapping("/addTeams")
+    @PostMapping("/add")
     public ResponseEntity<?> addTeams(@RequestBody TeamsWebModel teamsWebModel){
         try{
             return teamsService.addTeams(teamsWebModel);
@@ -29,7 +29,7 @@ public class TeamsController {
         }
     }
 
-    @GetMapping("/getTeams")
+    @GetMapping
     public ResponseEntity<?> getTeams(){
         try{
             return teamsService.getAllTeams();

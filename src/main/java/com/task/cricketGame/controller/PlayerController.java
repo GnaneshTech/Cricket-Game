@@ -15,7 +15,7 @@ public class PlayerController {
     PlayersService playersService;
 
 
-    @PostMapping("/addPlayer")
+    @PostMapping("/add")
     public ResponseEntity<?> addPlayer(@RequestBody PlayersWebModel playersWebModel){
         try{
             return playersService.addPlayer(playersWebModel);
@@ -25,7 +25,7 @@ public class PlayerController {
         }
     }
 
-    @GetMapping("/getPlayers")
+    @GetMapping
     public ResponseEntity<?> getAllPlayer(){
         try{
             return playersService.getAllPlayers();

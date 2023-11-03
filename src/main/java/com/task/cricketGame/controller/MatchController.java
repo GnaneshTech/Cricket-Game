@@ -35,7 +35,7 @@ public class MatchController {
 		}
 	}
 
-	@GetMapping("/matchDetails/{matchId}")
+	@GetMapping("/{matchId}")
 	public ResponseEntity<?> fetchMatchDetails(@PathVariable Integer matchId){
 		try {
 			return matchService.fetchMatchDetails(matchId);
